@@ -19,6 +19,11 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	// Time Limit: 60s
 	// ImageIO.read(getClass().getResource());	
 	
+	// (1) Edit Squirrel x-bounds (right side)
+	// (2) Fix the applet window from being dragged
+	// (3) Final score "game over" page
+
+	
 	private static int mouseX, mouseY, mouseB;
 	int appletWidth;
 	int appletHeight;
@@ -31,7 +36,7 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	int squY;
 	Squirrel squirrel;
 	boolean found;
-	double score;
+	int score;
 	Timer bob;
 	long end,nochange;
 	int once;
@@ -50,7 +55,7 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 		squX = random(0,1000);
 		squY = random(504, 554);
 		found = true;
-		score = 0;
+		score = -1;
 		bob = new Timer();
 		once = -1;
 		yes = "";
@@ -65,8 +70,6 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 		im5 = tempRead(im1,("/Users/Kyler/workspace/VandyHacks/src/img5.png"));
 		
 		squirrel = new Squirrel(squX,squY);
-		
-		
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -98,7 +101,6 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 		else
 		{
 			once++;
-			// Don't update if the squirrel hasn't been clicked yet!!
 			if(found)
 			{
 				squirrelFound(g);
@@ -109,7 +111,7 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 			if(once == 0)
 			{
 				nochange = System.currentTimeMillis();
-				end = (nochange+(10000));
+				end = (nochange+(120000));
 			}
 			time(g);
 		}
@@ -127,10 +129,10 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	{
 		// Squirrel has been clicked
 		// (1) redraw map
-		// (2) score += ((1/x)*100), where x is the time it took to click squirrel
+		// (2) score++;
 		// (3) squirrel object re-assigned parameters
 		
-		//score += ;
+		score += 1;
 		
 		squX = random(0,1000);
 		squY = random(504, 554);
@@ -153,8 +155,6 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 		g.drawString(yes, 50, 50);
 		
 		long dan = System.currentTimeMillis();
-		System.out.println("Countdown - "+(dan - nochange));
-		System.out.println("Countup   - "+(end - dan));
 		
 		if(((dan - nochange)) >= (end - dan))
 			System.exit(0);
@@ -162,6 +162,9 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 		g.setColor(Color.white);
 		yes = Integer.toString((int)(System.currentTimeMillis()-nochange)/1000);
 		g.drawString(yes, 50, 50);
+		g.drawString("Score: ", 800, 50);
+		String tempy = Integer.toString(score);
+		g.drawString(tempy, 900, 50);
 	}
 	
 	public static void setBackground(Graphics g, Color bgColor)
@@ -210,7 +213,7 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	
 			g.drawString("Instructions:",400,400);
 			g.setFont(footNote);
-			g.drawString("Locate the hidden squirrel and score points the faster you are!" ,245,305);
+			g.drawString("Locate (Click) as many hidden squirrels as you can within 60 seconds!" ,245,305);
 			g.drawString("Click inside the window to begin/resume the game.",255,470);
 	}
 	
@@ -223,22 +226,15 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	
 	public void redrawMap(Graphics g)
 	{
-		// TREES
 		int treeX;
 		int treeY;
-		
-		// Squirrel
-		
-		// (1) Randomize map each time that the squirrel is found
-		// (2) Place squirrel in map BEFORE Trees
-		// (3) Determine Hit box based on placement of squirrel
 		
 		setBackground(g,air);
 		setColor(g,grass);
 		fillRectangle(g,0,550,1000,650);
 		g.drawImage(im1,squX,squY,this);
 		
-		for(int i = 0; i < 27; i++)
+		for(int i = 0; i < 18; i++)
 		{
 			treeX = random(0,1000);
 			if(i < 10)
@@ -282,12 +278,10 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	}
 	
 	public void mouseClicked(MouseEvent e) 
-	{
-		System.out.println("MOUSE Clicked");
-	
-		if(!focus)
+	{	
+		if(focus)
 		{
-			if(e.getX() >= squirrel.getX() && e.getX() <= squirrel.getX()-44 && e.getY() >= squirrel.getY() && e.getY() <= squirrel.getY()-46)
+			if(e.getX() >= squirrel.getX() && e.getX() <= squirrel.getX()+44 && e.getY() >= squirrel.getY() && e.getY() <= squirrel.getY()+46)
 			{
 				found = true;
 			}
@@ -302,7 +296,7 @@ public class VandyHacks extends Applet implements MouseListener, MouseMotionList
 	
 	public void mouseExited(MouseEvent e) 
 	{
-		
+		System.out.println("MOUSE Exited");
 	}
 	
 	public void mousePressed(MouseEvent e) {
